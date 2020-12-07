@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+input = File.read "in/data.txt"
+lines = input.split("\n")
+
+schema = /(?<min_occ>\d{1,})-(?<max_occ>\d{1,}) (?<match_term>.)[:] (?<password>.+)/
+
+counter = 0
+lines.each do |line|
+    match_data = line.match schema
+    if match_data
+        min_occ = match_data[:min_occ].to_i
+        max_occ = match_data[:max_occ].to_i
+        match_term = match_data[:match_term]
+        password = match_data[:password]
+        #puts "#{min_occ} / #{max_occ} / #{match_term} / #{password}"
+        occ = password.scan match_term
+        if(occ.count >= min_occ && occ.count <= max_occ)
+            #puts "match valid #{match_data}"
+            counter += 1
+        end
+    end
+end
+puts "Solution: #{counter}"
