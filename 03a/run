@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+def get_at_pos(grid, x, y)
+    line = grid[y]
+    line[x % line.count]
+end
+
+input = File.read "in/data.txt"
+lines = input.split("\n")
+grid = lines.map { |line| line.chars}
+
+tree_counter = 0
+pos_x, pos_y = 0, 0
+move_x, move_y = 3, 1
+max_y = grid.count - 1
+while pos_y < max_y do
+    pos_x += move_x
+    pos_y += move_y
+    #puts "new pos: #{pos_x} / #{pos_y}"
+    value = get_at_pos grid, pos_x, pos_y
+    if value == '#'
+        tree_counter += 1
+    end
+end
+puts "Solution: #{tree_counter}"
