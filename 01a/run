@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+input = File.read "in/data.txt"
+values = input.split("\n").map { |elem| elem.to_i }
+
+values.each do |val1|
+    values.each do |val2|
+        if val1 + val2 == 2020
+            puts "Solution #{val1 * val2}"
+            return
+        end
+    end
+end
