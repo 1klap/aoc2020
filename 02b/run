@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+input = File.read "in/data.txt"
+lines = input.split("\n")
+
+schema = /(?<min_occ>\d{1,})-(?<max_occ>\d{1,}) (?<match_term>.)[:] (?<password>.+)/
+
+counter = 0
+lines.each do |line|
+    match_data = line.match schema
+    if match_data
+        match_pos1 = match_data[:min_occ].to_i
+        match_pos2 = match_data[:max_occ].to_i
+        match_term = match_data[:match_term]
+        password = match_data[:password]
+        # ^ is the XOR operator, only one condition must meet
+        if (password[match_pos1-1] == match_term) ^ (password[match_pos2-1] == match_term)
+            #puts "match valid #{match_data}"
+            counter += 1
+        end
+    end
+end
+puts "Solution: #{counter}"
