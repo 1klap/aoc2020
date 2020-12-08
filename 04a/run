@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+def is_passport_valid?(passport)
+    k = passport.keys
+    k.include?("byr") \
+        && k.include?("iyr") \
+        && k.include?("eyr") \
+        && k.include?("hgt") \
+        && k.include?("hcl") \
+        && k.include?("ecl") \
+        && k.include?("pid")
+end
+
+input = File.read "in/data.txt"
+entries = input.split("\n\n")
+
+passports = entries.map { |entry|
+    partMap = {}
+    parts = entry.split /\s+/
+    parts.each do |part|
+        split = part.split ":"
+        partMap[split[0]] = split[1]
+    end
+    partMap
+}
+valid_passports = passports.select { |passport| is_passport_valid?(passport) }
+
+puts "Solution: #{valid_passports.count}"
