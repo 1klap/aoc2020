@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+require 'set'
+
+def parse_rules(rules)
+    r = {}
+    rules.each do |rule|
+        s = rule.split " "
+        left_part = "#{s[0]} #{s[1]}"
+        if rule.include? " no "
+            r[left_part] = {}
+        else
+            rules_map = {}
+            right_part = s[4..-1].join " "
+            parts = right_part.split ","
+            parts.each do |part|
+                words_in_part = part.split " "
+                rules_map["#{words_in_part[1]} #{words_in_part[2]}"] = words_in_part[0]
+            end
+            r[left_part] = rules_map
+        end
+    end
+    r
+end
+
+def invert_rules(rules)
+    r = {}
+    rules.each do |rule|
+        rule[1].keys.each do |color|
+            if r.keys.include? color
+                containers = r[color]
+                containers.append(rule[0])
+            else
+                containers = [rule[0]]
+            end
+            r[color] = containers 
+        end
+    end
+    r
+end
+
+def find_possible_containers(target, rules)
+    containers = Set[target]
+    expanded_this_iteration = true
+    while expanded_this_iteration
+        expanded_this_iteration = false
+        nb_containers = containers.size
+        to_be_added = Set.new
+        containers.each do |color|
+            possible_containers = rules[color]
+            if !possible_containers.nil?
+                possible_containers.each do |pc|
+                    to_be_added.add pc
+                end
+            end
+        end
+        containers.merge to_be_added
+        if containers.size > nb_containers
+            expanded_this_iteration = true
+        end
+    end
+    containers
+end
+
+input = File.read "in/data.txt"
+rules_string = input.strip.split("\n")
+
+rules = parse_rules rules_string
+inv_rules = invert_rules rules
+
+target = "shiny gold"
+possible_containers = find_possible_containers target, inv_rules
+possible_containers.delete target
+
+puts "Solution: #{possible_containers.size}"
