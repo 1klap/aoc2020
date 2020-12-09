@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+def bissect_r(letters, lower, upper)
+    if letters.length > 0
+        case letters[0]
+        when /(F|L)/
+            upper = (lower + upper) / 2
+        when /(B|R)/
+            lower = ((lower + upper) / 2) + 1
+        end
+        bissect_r letters[1..-1], lower, upper
+    else
+        return lower
+    end
+end
+
+def parse_row(letters)
+    #puts "parse_row: #{letters}"
+    bissect_r letters, 0, 127
+end
+
+def parse_col(letters)
+    #puts "parse_col: #{letters}"
+    bissect_r letters, 0, 7
+end
+
+def parse_pass(pass)
+    row = parse_row pass[0..6]
+    col = parse_col pass[7..9]
+    return row, col
+end
+
+def pass_to_seat_id(pass)
+    r, c = parse_pass pass
+    r * 8 + c
+end
+
+input = File.read "in/data.txt"
+passes = input.split("\n")
+
+seat_ids = passes.map { |pass| pass_to_seat_id pass }.sort
+
+seat_ids.each_with_index do |val, index|
+    if index < seat_ids.count-1 && seat_ids[index+1] > seat_ids[index]+1
+        puts "Solution: #{seat_ids[index]+1}"
+    end
+end
