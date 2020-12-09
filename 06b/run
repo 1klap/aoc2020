@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+def count_occ(data)
+    lines = data.scan("\n").count+1
+    occ = data.chars.reduce({}) do |total, c|
+        if !total[c].nil?
+            total[c] = total[c]+1
+        else
+            total[c] = 1
+        end
+        total
+    end
+    occ.filter { |c| c.match /^[a-z]\z/ }.filter { |key,value| value == lines}
+end
+
+input = File.read "in/data.txt"
+group_data = input.strip.split("\n\n")
+
+occurences = group_data.map do |data|
+    count_occ(data)
+end
+s = occurences.map { |occ| occ.keys.length}.reduce{ |total, n| total + n}
+
+puts "Solution: #{s}"
