@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+require 'set'
+
+def parse_rules(rules)
+    r = {}
+    rules.each do |rule|
+        s = rule.split " "
+        left_part = "#{s[0]} #{s[1]}"
+        if rule.include? " no "
+            r[left_part] = {}
+        else
+            rules_map = {}
+            right_part = s[4..-1].join " "
+            parts = right_part.split ","
+            parts.each do |part|
+                words_in_part = part.split " "
+                rules_map["#{words_in_part[1]} #{words_in_part[2]}"] = words_in_part[0]
+            end
+            r[left_part] = rules_map
+        end
+    end
+    r
+end
+
+def invert_rules(rules)
+    r = {}
+    rules.each do |rule|
+        rule[1].keys.each do |color|
+            if r.keys.include? color
+                containers = r[color]
+                containers.append(rule[0])
+            else
+                containers = [rule[0]]
+            end
+            r[color] = containers 
+        end
+    end
+    r
+end
+
+def find_contained_bags(some_bag, rules)
+    to_be_expanded = [{ some_bag => 1}]
+    bags_count = 0
+    while to_be_expanded.size > 0
+        to_be_added = []
+        to_be_expanded.each do |elem|
+            elem.each do |key, value|
+                #puts "#{key}: #{value}"
+                rule = rules[key]
+                if !rule.nil?
+                    #puts "rule: #{rule}"
+                    rule.each do |color, amount|
+                        bags_count += value.to_i*amount.to_i
+                        to_be_added << {color => value.to_i*amount.to_i} 
+                    end
+                end
+            end
+        end
+        to_be_expanded = to_be_added
+    end
+    bags_count
+end
+
+input = File.read "in/data.txt"
+rules_string = input.strip.split("\n")
+
+rules = parse_rules rules_string
+#inv_rules = invert_rules rules
+
+contained_bags_count = find_contained_bags "shiny gold", rules
+
+puts "Solution: #{contained_bags_count}"
