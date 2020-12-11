@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+input = File.read "in/data.txt"
+program = input.strip.split("\n")
+
+program = program.map { |line| line.split " "}
+
+address = 0
+accum = 0
+address_map = {}
+
+while address < program.size
+    current_instruction = program[address]
+    if address_map[address] != nil
+        puts "duplicate execution, breaking. address: #{address} / accum: #{accum}"
+        break
+    end
+    address_map[address] = true
+    puts "executing #{current_instruction} / address: #{address} / accum: #{accum}"
+    case current_instruction[0]
+    when "nop"
+        address += 1
+    when "jmp"
+        value = current_instruction[1].to_i
+        address += value
+    when "acc"
+        address += 1
+        value = current_instruction[1].to_i
+        accum += value
+    end
+end
+
+puts "Solution: #{accum}"
