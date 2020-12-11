@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+def execute_program(program)
+    address = 0
+    accum = 0
+    address_map = {}
+    
+    while address < program.size
+        current_instruction = program[address]
+        if address_map[address] != nil
+            puts "duplicate execution, breaking. address: #{address} / accum: #{accum}"
+            return 0, false
+        end
+        address_map[address] = true
+        puts "executing #{current_instruction} / address: #{address} / accum: #{accum}"
+        case current_instruction[0]
+        when "nop"
+            address += 1
+        when "jmp"
+            value = current_instruction[1].to_i
+            address += value
+        when "acc"
+            address += 1
+            value = current_instruction[1].to_i
+            accum += value
+        end
+    end
+    puts "normal termination. address: #{address} / accum: #{accum}"
+    return accum, true
+end
+
+def swap_next_instruction(program, min_address)
+    for index in (min_address+1...program.size)
+        instruction = program[index]
+        if instruction[0] == "nop"
+            instruction[0] = "jmp"
+            return program, index
+        end
+        if instruction[0] == "jmp"
+            instruction[0] = "nop"
+            return program, index
+        end
+    end
+    return program, min_address
+end
+
+input = File.read "in/data.txt"
+program = input.strip.split("\n")
+
+program = program.map { |line| line.split " "}
+
+swapped_address = -1
+termination_found = false
+accum = -1
+while !termination_found
+    #puts "program before: #{program}"
+    program_modified, swapped_address = swap_next_instruction program.clone.map(&:clone), swapped_address
+    #puts "program after: #{program}"
+    #puts "program_modified after: #{program_modified}"
+    puts "swapped at #{swapped_address}"
+    accum, termination_found = execute_program program_modified
+    puts "accum: #{accum} / normal_termination: #{termination_found}"
+end
+
+puts "Solution: #{accum}"
