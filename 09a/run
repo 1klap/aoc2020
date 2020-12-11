@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+def conforms_to_xmas_protocal(current_value, previous_values)
+    for i in (0...previous_values.size)
+        for j in (0...previous_values.size)
+            next unless i != j
+            val1 = previous_values[i]
+            val2 = previous_values[j]
+            if val1 + val2 == current_value
+                return true
+            end
+        end
+    end
+    return false
+end
+
+input = File.read "in/data.txt"
+numbers = input.strip.split("\n").map( &:to_i)
+
+rolling_window_length = 25
+
+for index in (rolling_window_length...numbers.count)
+    previous_values = numbers[index-rolling_window_length...index]
+    current_value = numbers[index]
+    #puts previous_values
+    #puts "-- index: #{index}"
+    if !conforms_to_xmas_protocal current_value, previous_values
+        puts "Solution: #{current_value} (index:#{index})"
+        break
+    end
+end
