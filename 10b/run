@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+input = File.read "in/data.txt"
+jolt_ratings = input.strip.split("\n").map( &:to_i)
+# add plane joltage
+jolt_ratings = jolt_ratings.append 0
+# add phone adapter
+jolt_ratings = jolt_ratings.append jolt_ratings.max + 3
+# sort them
+jolt_ratings = jolt_ratings.sort
+
+#puts jolt_ratings.join ","
+
+diffs = []
+
+for index in (0...jolt_ratings.size-1)
+    diff = jolt_ratings[index+1] - jolt_ratings[index]
+    diffs.append diff
+end
+
+curr_diff_1_count = 0
+aggr_diffs = []
+for diff in diffs
+    #puts diff
+    case diff
+    when 1
+        curr_diff_1_count += 1
+    when 3
+        aggr_diffs.append curr_diff_1_count
+        curr_diff_1_count = 0
+    end
+end
+puts aggr_diffs.join ","
+
+=begin
+The number of combinations depend on the length of 1-joltages, 
+since the 3-joltage differences makes them mandatory and allows only 1 combination.
+So the "chains" of 1-joltages are counted by length and multiplied
+
+Hypothesis: 
+- only 1 and 3 joltages differences exist (no difference of 2)
+- every adapter exists only once
+=end
+
+r = 1
+for term in aggr_diffs
+    case term
+    when 0
+    when 1
+    when 2
+        r *= 2
+    when 3
+        r *= 4
+    when 4
+        r *= 7
+    when 5
+        r *= 12
+    end
+end
+puts "Solution #{r}"
+
+=begin
+dist 2: 2
+dist 3: 4
+dist 4: 7
+dist 5: 12
+
+#dist 2 - 2 possibilities
+3 4 5
+3 5
+
+#dist 3 - 4 possibilities
+3 4 5 6
+3 5 6
+3 4 6
+3 6
+
+#dist: 4 - 7 combinations
+5 6 7 8 9
+5 7 8 9
+5 6 8 9
+5 6 7 9
+5 6 9
+5 7 9
+5 8 9
+
+#dist 5 - 12 combinations
+5 6 7 8 9 10
+5 7 8 9 10
+5 6 8 9 10
+5 6 7 9 10
+5 6 7 8 10
+5 7 9 10
+5 7 8 10
+5 8 9 10
+5 6 9 10
+5 6 7 10
+5 7 10
+5 8 10
+
+=end
