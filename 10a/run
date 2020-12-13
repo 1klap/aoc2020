@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+input = File.read "in/data.txt"
+jolt_ratings = input.strip.split("\n").map( &:to_i)
+# add plane joltage
+jolt_ratings = jolt_ratings.append 0
+# add phone adapter
+jolt_ratings = jolt_ratings.append jolt_ratings.max + 3
+# sort them
+jolt_ratings = jolt_ratings.sort
+
+puts jolt_ratings.join ","
+
+diffs = []
+
+for index in (0...jolt_ratings.size-1)
+    diff = jolt_ratings[index+1] - jolt_ratings[index]
+    diffs.append diff
+end
+
+diffs_1 = diffs.filter { |diff| diff == 1 }
+diffs_2 = diffs.filter { |diff| diff == 2 }
+diffs_3 = diffs.filter { |diff| diff == 3 }
+
+puts "Solution: #{diffs_1.size * diffs_3.size} #diff-1: #{diffs_1.size} #diff-2: #{diffs_2.size} #diff-3: #{diffs_3.size}"
