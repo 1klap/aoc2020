@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+def simulate_step(seats)
+    seats_copy = seats.clone.map(&:clone)
+    for y_index in (1...seats.size-1)
+        row = seats[y_index]
+        for x_index in (1...row.size-1)
+            current_seat = seats[y_index][x_index]
+            #puts "inspecting seat at #{x_index},#{y_index}: #{current_seat}"
+            case current_seat
+            when "L"
+                if occupied_seats_count(seats, x_index, y_index) == 0
+                    seats_copy[y_index][x_index] = "#"
+                end
+            when "#"
+                if occupied_seats_count(seats, x_index, y_index) > 3
+                    seats_copy[y_index][x_index] = "L"
+                end
+            end
+        end
+    end
+    seats_copy
+end
+
+@offsets = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+
+def occupied_seats_count(seats, x, y)
+    counter = 0
+    @offsets.each do |offset|
+        if seats[y+offset[1]][x+offset[0]] == "#"
+            counter += 1
+        end
+    end
+    counter
+end
+
+def print_seats(seats)
+    seats.each do |row|
+        puts row.join ""
+    end
+end
+
+def place_empty_seats_around(seats)
+    row_length = seats[0].size
+    seats.each do |row|
+        row.unshift "."
+        row.append "."
+    end
+    seats.unshift Array.new(row_length+2, ".")
+    seats.append Array.new(row_length+2, ".")
+    seats
+end
+
+input = File.read "in/data.txt"
+rows = input.strip.split("\n")
+seats = rows.map { |row| row.chars }
+#print_seats seats
+seats = place_empty_seats_around seats
+#print_seats seats
+
+state_stabilized = false
+iter_count = 0
+while !state_stabilized
+    puts "itercount: #{iter_count}"
+    seats_copy = simulate_step(seats)
+
+    if seats_copy == seats
+        state_stabilized = true
+    end
+    seats = seats_copy
+    iter_count += 1
+end
+
+puts "Final state:"
+print_seats seats
+occupied_count = seats.map { |row| row.filter { |seat| seat == "#"}.count}.sum
+puts "Solution: #{occupied_count}"
