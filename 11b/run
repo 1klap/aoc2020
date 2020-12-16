@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+def simulate_step(seats)
+    seats_copy = seats.clone.map(&:clone)
+    for y_index in (1...seats.size-1)
+        row = seats[y_index]
+        for x_index in (1...row.size-1)
+            current_seat = seats[y_index][x_index]
+            #puts "inspecting seat at #{x_index},#{y_index}: #{current_seat}"
+            case current_seat
+            when "L"
+                if occupied_seats_count(seats, x_index, y_index) == 0
+                    seats_copy[y_index][x_index] = "#"
+                end
+            when "#"
+                if occupied_seats_count(seats, x_index, y_index) >= 5
+                    seats_copy[y_index][x_index] = "L"
+                end
+            end
+        end
+    end
+    seats_copy
+end
+
+@offsets = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+
+def occupied_seats_count(seats, x, y)
+    counter = 0
+    directions = @offsets.clone.map(&:clone)
+    #view_distance = 1
+    while directions.size > 0
+        directions.each do |dir|
+            position = seats[y+dir[1]][x+dir[0]]
+            if position == "#"
+                counter += 1
+                directions.delete dir
+            elsif position == "L"
+                directions.delete dir
+            else
+                dir[0] += 1 if dir[0] > 0
+                dir[0] -= 1 if dir[0] < 0
+                dir[1] += 1 if dir[1] > 0
+                dir[1] -= 1 if dir[1] < 0
+
+                if y+dir[1] < 0 || y+dir[1] >= seats.size || x+dir[0] < 0 || x+dir[0] >= seats[0].size
+                    directions.delete dir
+                end
+            end
+        end
+        #puts "iterdir: #{directions}"
+    end
+    counter
+end
+
+def print_seats(seats)
+    seats.each do |row|
+        puts row.join ""
+    end
+end
+
+def place_empty_seats_around(seats)
+    row_length = seats[0].size
+    seats.each do |row|
+        row.unshift "."
+        row.append "."
+    end
+    seats.unshift Array.new(row_length+2, ".")
+    seats.append Array.new(row_length+2, ".")
+    seats
+end
+
+input = File.read "in/data.txt"
+rows = input.strip.split("\n")
+seats = rows.map { |row| row.chars }
+#print_seats seats
+seats = place_empty_seats_around seats
+#print_seats seats
+
+state_stabilized = false
+iter_count = 0
+while !state_stabilized
+    puts "itercount: #{iter_count}"
+    seats_copy = simulate_step(seats)
+
+    if seats_copy == seats
+        state_stabilized = true
+    end
+    seats = seats_copy
+    iter_count += 1
+    #print_seats seats
+end
+
+puts "Final state:"
+print_seats seats
+occupied_count = seats.map { |row| row.filter { |seat| seat == "#"}.count}.sum
+puts "Solution: #{occupied_count}"
