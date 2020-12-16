@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+class Numeric
+    def degrees
+      self * Math::PI / 180
+    end
+  end
+
+def apply_instruction(instr, x, y, angle)
+    action = instr[0]
+    value = instr[1..].to_i
+    case action
+    when "N"
+        return x, y+value, angle
+    when "E"
+        return x+value, y, angle
+    when "S"
+        return x, y-value, angle
+    when "W"
+        return x-value, y, angle
+    when "L"
+        return x, y, (angle + value) % 360
+    when "R"
+        return x, y, (angle - value) % 360
+    when "F"
+        d_x = (Math.cos(angle.degrees)*value).round 3
+        d_y = (Math.sin(angle.degrees)*value).round 3
+        return x+d_x, y+d_y, angle
+    end
+end
+
+input = File.read "in/data.txt"
+instructions = input.strip.split("\n")
+
+pos_x = 0
+pos_y = 0
+facing_angle = 0
+
+instructions.each do |instr|
+    pos_x, pos_y, facing_angle = apply_instruction instr, pos_x, pos_y, facing_angle
+    puts "#{instr} / new state: pos_x=#{pos_x} pos_y=#{pos_y} facing_angle=#{facing_angle}"
+end
+
+puts "Final state: pos_x=#{pos_x} pos_y=#{pos_y} facing_angle=#{facing_angle}"
+
+puts "Solution: #{pos_x.abs + pos_y.abs}"
