@@ -1,0 +1,72 @@
+#!/usr/bin/env ruby
+class Numeric
+    def degrees
+        self * Math::PI / 180
+    end
+
+    def radians
+        self * 180 / Math::PI
+    end
+end
+
+def apply_instruction(instr, x, y, way_x, way_y)
+    action = instr[0]
+    value = instr[1..].to_f
+    case action
+    when "N"
+        return x, y, way_x, way_y+value
+    when "E"
+        return x, y, way_x+value, way_y
+    when "S"
+        return x, y, way_x, way_y-value
+    when "W"
+        return x, y, way_x-value, way_y
+    when "L"
+        d_x = way_x
+        d_y = way_y
+        len = Math.sqrt(d_x**2 + d_y**2)
+        angle = Math.acos( d_x / len )
+        if d_y < 0
+            angle = -angle
+        end
+        angle += value.degrees
+        d_x = (Math.cos(angle)*len).round 3
+        d_y = (Math.sin(angle)*len).round 3
+        return x, y, d_x, d_y
+    when "R"
+        d_x = way_x
+        d_y = way_y
+        len = Math.sqrt(d_x**2 + d_y**2)
+        angle = Math.acos( d_x / len )
+        if d_y < 0
+            angle = -angle
+        end
+        angle -= value.degrees
+        d_x = (Math.cos(angle)*len).round 3
+        d_y = (Math.sin(angle)*len).round 3
+        return x, y, d_x, d_y
+    when "F"
+        d_x = way_x
+        d_y = way_y
+        new_x = x + value * d_x
+        new_y = y + value * d_y
+        return new_x, new_y, way_x, way_y
+    end
+end
+
+input = File.read "in/data.txt"
+instructions = input.strip.split("\n")
+
+pos_x = 0
+pos_y = 0
+waypoint_x = 10
+waypoint_y = 1
+
+instructions.each do |instr|
+    pos_x, pos_y, waypoint_x, waypoint_y = apply_instruction instr, pos_x, pos_y, waypoint_x, waypoint_y
+    puts "#{instr} / new state: ship=(#{pos_x}, #{pos_y}) waypoint=(#{waypoint_x}, #{waypoint_y})"
+end
+
+puts "Final state: ship=(#{pos_x}, #{pos_y}) waypoint=(#{waypoint_x}, #{waypoint_y})"
+
+puts "Solution: #{pos_x.abs + pos_y.abs}"
