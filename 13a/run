@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+input = File.read "in/example.txt"
+notes = input.split("\n")
+
+curr_time = notes[0].to_i
+bus_periods = notes[1].split(",").filter { |id| id != "x"}.map(&:to_i)
+
+=begin
+# Iterative search for minimum
+min_wait = 10000
+min_bus_id = -1
+bus_periods.each do |period|
+    missed_by = curr_time % period
+    wait = period - missed_by
+    if wait < min_wait
+        min_wait = wait
+        min_bus_id = period
+    end
+    puts "bus id: #{period} wait: #{wait}"
+end
+puts "Solution: #{min_bus_id} (waiting: #{min_wait})"
+=end
+
+wait_times = bus_periods.map { |period| [period, period - (curr_time % period)] }
+min_tuple = wait_times.min { |a, b| a[1] <=> b[1]}
+
+puts "Solution: #{min_tuple[0]} (waiting: #{min_tuple[1]})"
